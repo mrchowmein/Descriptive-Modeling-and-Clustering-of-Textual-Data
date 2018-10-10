@@ -8,6 +8,7 @@ Currently, the K-means algorithm can use both euclidian distance and cosine simi
 If text files were grouped togther by topics. The application will measure itself's accuracy, precision and recall.
 
 Features waiting to be implemented:
+
 -PCA to reduce the dimensions
 
 -visualization feature to plot clusters

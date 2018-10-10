@@ -1,4 +1,4 @@
-# Descriptive-Modeling-and-Clustering-of-Textual-Data
+# Descriptive Modeling and Clustering of Textual Data (in progress)
 Descriptive Modeling and Clustering of Textual Data in Java
 
 A document clustering application built in Java using Stanford's NLP Library.

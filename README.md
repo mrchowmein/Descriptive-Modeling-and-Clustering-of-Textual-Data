@@ -9,4 +9,5 @@ If text files were grouped togther by topics. The application will measure itsel
 
 Features waiting to be implemented:
 -PCA to reduce the dimensions
+
 -visualization feature to plot clusters

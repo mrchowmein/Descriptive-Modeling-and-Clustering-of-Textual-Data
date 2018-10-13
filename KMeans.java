@@ -8,13 +8,13 @@ public class KMeans
 {
     // Data members
     private double [][] dataSetMatrix; // Array of all records in dataset
-    private int [] _label;  // generated cluster labels
+    private int [] label;  // generated cluster labels
  
-    // by comparing _label and _withLabel, we can compute accuracy.
-    // However, the accuracy function is not defined yet.
-    private double [][] _centroids; // centroids: the center of clusters
-    private int _nrows, _ndims; // the number of rows and dimensions
-    private int _numClusters; // the number of clusters;
+    
+    private double [][] centroids; 
+    private int nrows;
+    private int ndims; // the number of rows and dimensions
+    private int numClusters; // the number of clusters;
     private String similarityMode; //use CS for cosine sim. use ED for euculdian distance.
 
     // Constructor; loads records from file <fileName>.
@@ -23,66 +23,63 @@ public class KMeans
     {
      
     	this.dataSetMatrix = dataSetMatrix;
-    	this._nrows = dataSetMatrix.length;
-    	this._ndims = dataSetMatrix[0].length;
+    	this.nrows = dataSetMatrix.length;
+    	this.ndims = dataSetMatrix[0].length;
     	
     	
 
     }
 
-    // Perform k-means clustering with the specified number of clusters and
-    // Eucliden distance metric.
-    // niter is the maximum number of iterations. If it is set to -1, the kmeans iteration is only terminated by the convergence condition.
-    // centroids are the initial centroids. It is optional. If set to null, the initial centroids will be generated randomly.
-    public void clustering(int numClusters, int niter, double [][] centroids, String similaryMeasure){
+    
+    public void clustering(int numClusters, int niter, double [][] clusters, String similaryMeasure){
     	
     	System.out.println("please wait for " + niter + " iterations\n");
     	similarityMode = similaryMeasure;
     	System.out.println("Similarity measure mode: " + similarityMode);
     	
-        _numClusters = numClusters;
-        if (centroids !=null)
-            _centroids = centroids;
+        this.numClusters = numClusters;
+        if (clusters !=null)
+            centroids = clusters;
         else{
             // randomly selected centroids from one of the rows
-            _centroids = new double[_numClusters][];
+            centroids = new double[numClusters][];
             System.out.println("Generating random centroids");
             ArrayList idx= new ArrayList<>();
             for (int i=0; i<numClusters; i++){
                 int c;
                 do{
-                    c = (int) (Math.random()*_nrows);
+                    c = (int) (Math.random()*nrows);
                 }while(idx.contains(c)); // avoid duplicates
                 idx.add(c);
 
                 // copy the value from _data[c]
-                _centroids[i] = new double[_ndims];
-                for (int j=0; j<_ndims; j++)
-                    _centroids[i][j] = dataSetMatrix[c][j];
+                centroids[i] = new double[ndims];
+                for (int j=0; j<ndims; j++)
+                    centroids[i][j] = dataSetMatrix[c][j];
             }
             System.out.println("selected random centroids");
 
         }
 
-        double [][] c1 = _centroids;
+        double [][] c1 = centroids;
         //double threshold = 0.001;
         int round=0;
 
         while (true){
-            // update _centroids with the last round results
-            _centroids = c1;
+            // update centroids with the last round results
+            centroids = c1;
 
             //assign record to the closest centroid
-            _label = new int[_nrows];
-            for (int i=0; i<_nrows; i++){
+            label = new int[nrows];
+            for (int i=0; i<nrows; i++){
             	
             	if(similarityMode.equals("EU")) {
             		//System.out.println("EU Mode");
-                _label[i] = closest(dataSetMatrix[i]);//using euclidean distance
+                label[i] = closest(dataSetMatrix[i]);//using euclidean distance
             	} 
             	if (similarityMode.equals("CS")) {
             		//System.out.println("CS Mode");
-            		_label[i] = mostSimilar(dataSetMatrix[i]); //use cosinesimilarity
+            		label[i] = mostSimilar(dataSetMatrix[i]); //use cosinesimilarity
             	} 
             }
             	
@@ -91,13 +88,13 @@ public class KMeans
             c1 = updateCentroids();
             round ++;
             if(similarityMode.equals("ED")) {
-            	if ((niter >0 && round >=niter)){ // || convergeEU(_centroids, c1, .001))
+            	if ((niter >0 && round >=niter)){ // || convergeEU(centroids, c1, .001))
             		break;
            
             	}
                     
             } else {
-            	if ((niter >0 && round >=niter)) {// ||convergeCS(_centroids, c1, .9))
+            	if ((niter >0 && round >=niter)) {// ||convergeCS(centroids, c1, .9))
             		break;
             		
             	}
@@ -113,10 +110,10 @@ public class KMeans
 
     // find the closest centroid for the record v
     private int closest(double [] v){
-        double mindist = dist(v, _centroids[0]);
+        double mindist = dist(v, centroids[0]);
         int label =0;
-        for (int i=1; i<_numClusters; i++){
-            double t = dist(v, _centroids[i]);
+        for (int i=1; i<numClusters; i++){
+            double t = dist(v, centroids[i]);
             if (mindist>t){
                 mindist = t;
                 label = i;
@@ -128,7 +125,7 @@ public class KMeans
     // compute Euclidean distance between two vectors v1 and v2
     private double dist(double [] v1, double [] v2){
         double sum=0;
-        for (int i=0; i<_ndims; i++){
+        for (int i=0; i<ndims; i++){
             double d = v1[i]-v2[i];
             sum += d*d;
         }
@@ -150,10 +147,10 @@ public class KMeans
     
  // find the most similar centroid for the record v  
     private int mostSimilar(double [] v){
-        double sim = cosineSimilarity(v, _centroids[0]);
+        double sim = cosineSimilarity(v, centroids[0]);
         int label =0;
-        for (int i=1; i<_numClusters; i++){
-            double t = cosineSimilarity(v, _centroids[i]);
+        for (int i=1; i<numClusters; i++){
+            double t = cosineSimilarity(v, centroids[i]);
             if (sim<t){
                 sim = t;
                 label = i;
@@ -172,29 +169,29 @@ public class KMeans
     private double [][] updateCentroids(){
     	//System.out.println("Updating Centroids");
         // initialize centroids and set to 0
-        double [][] newc = new double [_numClusters][]; //new centroids
-        int [] counts = new int[_numClusters]; // sizes of the clusters
+        double [][] newc = new double [numClusters][]; //new centroids
+        int [] counts = new int[numClusters]; // sizes of the clusters
 
         // intialize
-        for (int i=0; i<_numClusters; i++){
+        for (int i=0; i<numClusters; i++){
             counts[i] =0;
-            newc[i] = new double [_ndims];
-            for (int j=0; j<_ndims; j++)
+            newc[i] = new double [ndims];
+            for (int j=0; j<ndims; j++)
                 newc[i][j] =0;
         }
 
 
-        for (int i=0; i<_nrows; i++){
-            int cn = _label[i]; // the cluster membership id for record i
-            for (int j=0; j<_ndims; j++){
+        for (int i=0; i<nrows; i++){
+            int cn = label[i]; // the cluster membership id for record i
+            for (int j=0; j<ndims; j++){
                 newc[cn][j] += dataSetMatrix[i][j]; // update that centroid by adding the member data record
             }
             counts[cn]++;
         }
 
         // finally get the average
-        for (int i=0; i< _numClusters; i++){
-            for (int j=0; j<_ndims; j++){
+        for (int i=0; i< numClusters; i++){
+            for (int j=0; j<ndims; j++){
                 newc[i][j]/= counts[i];
             }
         }
@@ -208,7 +205,7 @@ public class KMeans
 //        // c1 and c2 are two sets of centroids
 //        
 //    	double maxv = 0;
-//        for (int i=0; i< _numClusters; i++){
+//        for (int i=0; i< numClusters; i++){
 //        	
 //        		double d= dist(c1[i], c2[i]);
 //                if (maxv<d)
@@ -226,7 +223,7 @@ public class KMeans
 //    private boolean convergeCS(double [][] c1, double [][] c2, double threshold){
 //        // c1 and c2 are two sets of centroids
 //        double maxv = 0;
-//        for (int i=0; i< _numClusters; i++){
+//        for (int i=0; i< numClusters; i++){
 //            double d= cosineSimilarity(c1[i], c2[i]);
 //            if (maxv>d)
 //                maxv = d;
@@ -246,29 +243,29 @@ public class KMeans
     
     public double[][] getCentroids()
     {
-        return _centroids;
+        return centroids;
     }
 
     public int [] getLabel()
     {
-        return _label;
+        return label;
     }
 
     public int nrows(){
-        return _nrows;
+        return nrows;
     }
 
     public void printResults(){
         
     	System.out.println("Clustered Label:");
-        for (int i=0; i<_nrows; i++)
-            System.out.println("Document " + i + ": " + _label[i]);
+        for (int i=0; i<nrows; i++)
+            System.out.println("Document " + i + ": " + label[i]);
             
         //print centroids
 //        System.out.println("Centroids:");
-//        for (int i=0; i<_numClusters; i++){
-//            for(int j=0; j<_ndims; j++)
-//                System.out.print(_centroids[i][j] + " ");
+//        for (int i=0; i<numClusters; i++){
+//            for(int j=0; j<ndims; j++)
+//                System.out.print(centroids[i][j] + " ");
 //            System.out.println();
 //        }
 

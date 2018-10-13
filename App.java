@@ -1,9 +1,19 @@
 package com.nlptools.corenlp;
 
+/*
+ * Jason Chan
+ * JWC516@nyu.edu
+ * Predictive Analytics 2018
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 
 
@@ -15,7 +25,23 @@ public class App
     	double [][] centrioids;
     	int [] predictedLabels; //predicted labels/cluster. index correspond to row/doc in docMatrix and TFIDFMatrix
     	
-    	
+    	String mode = "";
+    	Scanner sc = new Scanner(System.in);
+    	System.out.println("Welcome to Jason Chan's Document Clustering Program!");
+    	System.out.println("How would you like to cluster?");
+   	 	System.out.println("Type 'CS' for cosine similarty mode or 'EU' for euclidean distance mode");
+	   	 System.out.print("Input: ");
+	   	 
+	     mode = sc.nextLine().toUpperCase();
+	     
+        //System.out.println(mode);
+        
+       while(!mode.equals("CS") && !mode.equals("EU")) {
+    	   System.out.print("incorrect mode, please try again:");
+    	    mode = sc.nextLine().toUpperCase();
+  	     	
+       } 
+        
     	//BasicConfigurator.configure();
     	//Load documents that need to be preprocessed into a list
     	//String[] directoryList = {"src/test/java/com/nlptools/corenlp/C1/"};
@@ -60,9 +86,9 @@ public class App
     	
     	int[] actualDocumentTopic = docMatrix.getDocumentTopicArray();
     	String [][] folderTopicArray = docMatrix.getFolderTopicArray();
+    	//String [] folderTopicString = docMatrix.getFolderTopicString();
     	
-    	
-    	
+    	//print2DMatrix(folderTopicArray);
     	//System.out.println(documentTopic);
     	
     	
@@ -74,7 +100,7 @@ public class App
     	System.out.println("Starting Kmeans, please wait\n");
     	
     	KMeans KM = new KMeans(tfidfMatrix);
-    	KM.clustering(3, 15000, null, "CS");
+    	KM.clustering(3, 15000, null, mode);
     	
     	//KM.printResults();
     	centrioids = KM.getCentroids();
@@ -84,21 +110,64 @@ public class App
     	//pm.getClusterTopics();
     	//pm.getPredictedDocTopics();
     	
+    	
+    	
     	pm.testAccuracy(actualDocumentTopic, folderTopicArray);
+    	int [] normalizedLabels = pm.getNormalizedPredictedLabels();
+    	
+    	PCA pc = new PCA(tfidfMatrix);
+    	double [][] reducedMatrix = pc.getReducedMatrix();
+    	
+    	System.out.println("-------------------------\n");
+    	
+    	//
+    	SwingUtilities.invokeLater(() -> {  
+    	      clusterPlot example = new clusterPlot("Predicted Clusters", reducedMatrix, normalizedLabels, folderTopicArray);  
+    	      example.setSize(1024, 768);  
+    	      example.setLocationRelativeTo(null);  
+    	      example.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  
+    	      example.setVisible(true);  
+    	    });
+    	
+    	SwingUtilities.invokeLater(() -> {  
+  	      clusterPlot original = new clusterPlot("Acutal Clusters", reducedMatrix, actualDocumentTopic, folderTopicArray);  
+  	    original.setSize(1024, 768);  
+  	    original.setLocationRelativeTo(null);  
+  	    original.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  
+  	    original.setVisible(true);  
+  	    });
     	
     	
     	
-    	
-//    	for(int i = 0; i < labels.length; i++) {
-//    		System.out.println("predicted cluster: "+ labels[i]);
-//    	}
-    	
-    
+    	System.out.println("Plotting");
+    	System.out.println("-------------------------\n");
            
-        
+        System.out.println("\nDone!");
     }
     
- 
+    public static void print2DMatrix(double [][] inputMatrix){
+
+		for (int i = 0; i < inputMatrix.length; i++){
+
+			for(int j = 0; j < inputMatrix[0].length; j++){
+				System.out.print(inputMatrix[i][j] + " ");
+			}
+			System.out.println();
+		}
+
+	} 
+    
+    public static void print2DMatrix(String [][] inputMatrix){
+
+		for (int i = 0; i < inputMatrix.length; i++){
+
+			for(int j = 0; j < inputMatrix[0].length; j++){
+				System.out.print(inputMatrix[i][j] + " ");
+			}
+			System.out.println();
+		}
+
+	} 
     
     
     //load all the files of filepaths in array
@@ -120,6 +189,9 @@ public class App
         	}
     		
     	}	
+    	
+    	
+    	
     	
     	return documentObjectsList;
     }

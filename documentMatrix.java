@@ -181,7 +181,7 @@ public class documentMatrix {
 				//System.out.println(termColsArray[topWordIndex[index]] +": " + combinedTFIDF[topWordIndex[index]]);
 			}	
 			
-			Arrays.sort(folderTopic);
+			//Arrays.sort(folderTopic);
 			
 			folderTopicArray[folderIndex] = folderTopic;
 			folderTopicMap.put(folderName[folderIndex],folderTopic);
@@ -275,9 +275,9 @@ public class documentMatrix {
 	public String [][] getFolderTopicArray(){
 		
 		for(int i = 0; i < folderTopicArray.length; i++) {
-			//System.out.println("Folder: " + i);
+			System.out.print("Topics for folder " + i + ": ");
 			for(int j = 0; j < folderTopicArray[0].length; j++) {
-				System.out.print("Folder Label " + i + " topics: " + folderTopicArray[i][j] +" ");
+				System.out.print(folderTopicArray[i][j] +" ");
 			}
 			System.out.println();
 		}

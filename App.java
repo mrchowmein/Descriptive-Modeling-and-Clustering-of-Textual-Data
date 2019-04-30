@@ -2,8 +2,7 @@ package com.nlptools.corenlp;
 
 /*
  * Jason Chan
- * JWC516@nyu.edu
- * Predictive Analytics 2018
+ * Descriptive-Modeling-and-Clustering-of-Textual-Data
  */
 
 import java.io.File;
